@@ -16,13 +16,14 @@ const PokemonCard = (props) => {
 
 const PokenRequestStatus = (props) => {
   return (
-    <div className={props.status==='done'?"alert alert-success":"alert alert-info"} role="alert">
+    <div className={props.status==='Done.'?"alert alert-success":"alert alert-info"} role="alert">
       {props.status}
     </div>
   );
 }
 
 class App extends Component {
+
   constructor(){
     super();
     this.state = {
@@ -33,54 +34,69 @@ class App extends Component {
         previous: '',
         results:[]
       },
-      status: 'ready',
-      counterPerPage: 6   
+      status: 'Done.',
+      counterPerPage: 6,
+      limit: 4,
+      pageDisplay: 3
     };
     this.handlePageChange = this.handlePageChange.bind(this);
   }
+
   handlePageChange(pageNumber) {    
     this.setState({activePage: pageNumber}, () => {
       this.loadItems(pageNumber);
     });
     return true;
   }
-  loadItems(page) {
-    const url = 'https://pokeapi.co/api/v2/pokemon/?offset=' + page + '&limit=6';
-    this.setState({status:'load'}, () => {
+
+  async loadItems(page) {
+    const url = 'https://pokeapi.co/api/v2/pokemon/?offset=' + page + '&limit=' + this.state.limit;
+    this.setState({status:'Loading ...'}, () => {
       axios.get(url)
         .then(response => {        
           this.setState({data: response.data}, () => {
-            this.setState({status:'done'});
+            this.setState({status:'Done.'});
           });        
         });
     });    
   }
+
   async componentDidMount(){
-    this.loadItems(this.state.activePage);
+    setTimeout(() => this.loadItems(this.state.activePage) , 2500);
   }
+
   render() {
-    return (
-      <div className="container">
-        <div className="row">
-          {this.state.data.results.map((result,index) => (
-            <PokemonCard key={index} name={result.name}></PokemonCard>
-          ))}          
-        </div>
-        <div>
-          <PokenRequestStatus status={this.state.status}></PokenRequestStatus>
-        </div>
-        <div className="text-center">
-          <Pagination
-            activePage={this.state.activePage}
-            itemsCountPerPage={6}
-            totalItemsCount={this.state.data.count}
-            pageRangeDisplayed={5}
-            onChange={this.handlePageChange}
-          />
-        </div>
+    return (      
+      <div>
+        {
+          (this.state.data.results && this.state.data.results.length > 0) ? (    
+            <div className="container">
+              <div className="row">
+                {this.state.data.results.map((result,index) => (
+                  <PokemonCard key={index} name={result.name}></PokemonCard>
+                ))}          
+              </div>
+              <div>
+                <PokenRequestStatus status={this.state.status}></PokenRequestStatus>
+              </div>
+              <div className="text-center">
+                <Pagination
+                  activePage={this.state.activePage}
+                  itemsCountPerPage={this.state.limit}
+                  totalItemsCount={this.state.data.count}
+                  pageRangeDisplayed={this.state.pageDisplay}
+                  onChange={this.handlePageChange}
+                />
+              </div>
+            </div>    
+          ): 
+          (
+            <div>Carregando ...</div>
+          )
+        }
       </div>
-    );
-  }  
+      );
+    }  
 }
 
 export default App;
