@@ -36,7 +36,7 @@ class App extends Component {
       },
       status: 'Done.',
       counterPerPage: 6,
-      limit: 4,
+      limit: 6,
       pageDisplay: 3
     };
     this.handlePageChange = this.handlePageChange.bind(this);
@@ -70,7 +70,7 @@ class App extends Component {
       <div>
         {
           (this.state.data.results && this.state.data.results.length > 0) ? (    
-            <div className="container">
+            <div className="container"><br />
               <div className="row">
                 {this.state.data.results.map((result,index) => (
                   <PokemonCard key={index} name={result.name}></PokemonCard>
