@@ -2,38 +2,19 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Pagination from 'react-js-pagination';
 
-const PokemonCard = (props) => {
-  return (    
-      <div className="col-sm-6 col-md-6">
-        <div className="thumbnail">          
-          <div className="caption">
-            <h3>{props.name}</h3>            
-          </div>
-        </div>
-      </div>    
-  );
-};
+import url from './Utils';
+import Loading from './Loading';
 
-const PokenRequestStatus = (props) => {
-  return (
-    <div className={props.status==='Done.'?"alert alert-success":"alert alert-info"} role="alert">
-      {props.status}
-    </div>
-  );
-}
+import PokemonCardList from './components/PokemonCardList';
+import PokenRequestStatus from './components/PokenRequestStatus';
 
 class App extends Component {
 
   constructor(){
     super();
-    this.state = {
-      activePage: 1,      
-      data: {
-        count: 0,
-        next: '',
-        previous: '',
-        results:[]
-      },
+    this.state = { 
+      activePage: 1, 
+      data: {count: 0, next: '', previous: '', results:[]},
       status: 'Done.',
       counterPerPage: 6,
       limit: 6,
@@ -50,9 +31,9 @@ class App extends Component {
   }
 
   async loadItems(page) {
-    const url = 'https://pokeapi.co/api/v2/pokemon/?offset=' + page + '&limit=' + this.state.limit;
+    const { limit } = this.state;    
     this.setState({status:'Loading ...'}, () => {
-      axios.get(url)
+      axios.get(url.api(page, limit))
         .then(response => {        
           this.setState({data: response.data}, () => {
             this.setState({status:'Done.'});
@@ -66,32 +47,26 @@ class App extends Component {
   }
 
   render() {
+    const {results, count} = this.state.data;
+    const {status, limit, activePage, pageDisplay} = this.state;
     return (      
       <div>
         {
-          (this.state.data.results && this.state.data.results.length > 0) ? (    
-            <div className="container"><br />
+          (results && results.length > 0) ? (    
+            <div className="container">
               <div className="row">
-                {this.state.data.results.map((result,index) => (
-                  <PokemonCard key={index} name={result.name}></PokemonCard>
-                ))}          
+                <PokemonCardList items={results} />
               </div>
               <div>
-                <PokenRequestStatus status={this.state.status}></PokenRequestStatus>
+                <PokenRequestStatus status={status} />
               </div>
               <div className="text-center">
-                <Pagination
-                  activePage={this.state.activePage}
-                  itemsCountPerPage={this.state.limit}
-                  totalItemsCount={this.state.data.count}
-                  pageRangeDisplayed={this.state.pageDisplay}
-                  onChange={this.handlePageChange}
-                />
+                <Pagination activePage={activePage} itemsCountPerPage={limit} totalItemsCount={count} pageRangeDisplayed={pageDisplay} onChange={this.handlePageChange}/>
               </div>
             </div>    
           ): 
           (
-            <div>Carregando ...</div>
+            <Loading description="Carregando ..."></Loading>
           )
         }
       </div>
