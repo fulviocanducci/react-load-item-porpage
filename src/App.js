@@ -10,7 +10,7 @@ import PokenRequestStatus from './components/PokenRequestStatus';
 
 class App extends Component {
 
-  constructor(){
+  constructor() {
     super();
     this.state = { 
       activePage: 1, 
@@ -50,7 +50,7 @@ class App extends Component {
     const {results, count} = this.state.data;
     const {status, limit, activePage, pageDisplay} = this.state;
     return (      
-      <div>
+      <div>        
         {
           (results && results.length > 0) ? (    
             <div className="container">
